@@ -40,7 +40,7 @@ class SakthiTextilesRAG:
             metadata={"description": "Sakthi Textiles order records"}
         )
         
-        print(f"✅ RAG system initialized. Current records in DB: {self.collection.count()}")
+        print(f"RAG system initialized. Current records in DB: {self.collection.count()}")
     
     def create_document_from_order(self, order: Dict[str, Any]) -> str:
         """
@@ -507,15 +507,20 @@ Quality Check: {order['quality_check_status']}"""
         return response
 
 
-def initialize_database(csv_path: str = "textile_orders_5000.csv"):
+def initialize_database(csv_path: str = "textile_orders_5000.csv", interactive: bool = True):
     """Initialize the database with CSV data"""
     rag = SakthiTextilesRAG(csv_path=csv_path)
     
     # Check if database is already populated
     if rag.collection.count() > 0:
         print(f"Database already contains {rag.collection.count()} records.")
-        response = input("Do you want to reload all data? (yes/no): ")
-        if response.lower() != 'yes':
+        
+        if interactive:
+            response = input("Do you want to reload all data? (yes/no): ")
+            if response.lower() != 'yes':
+                return rag
+        else:
+            print("Skipping reload in non-interactive mode.")
             return rag
         
         # Clear existing data
